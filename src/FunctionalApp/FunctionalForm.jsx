@@ -27,7 +27,7 @@ export const FunctionalForm = ({ setUserData }) => {
     city: "",
     phone: ["", "", "", ""],
   });
-  const isValid = {
+  const validityTracker = {
     firstName: isNameValid(userDataInput.firstName),
     lastName: isNameValid(userDataInput.lastName),
     email: isEmailValid(userDataInput.email),
@@ -45,21 +45,6 @@ export const FunctionalForm = ({ setUserData }) => {
     });
   };
 
-  const handleOnChangePhone = (e) => {
-    const { id, value } = e.target;
-    let newValue = value.replace(/[^0-9]/g, "");
-    const phoneIndex = parseInt(id[id.length - 1]) - 1;
-    const maxLength = phoneIndex === 3 ? 1 : 2;
-    let truncatedValue = newValue.slice(0, maxLength);
-
-    setUserDataInput((prevUserDataInput) => ({
-      ...prevUserDataInput,
-      phone: prevUserDataInput.phone.map((phoneValue, index) =>
-        index === phoneIndex ? truncatedValue : phoneValue
-      ),
-    }));
-  };
-
   const handleOnChange = (e) => {
     const { id, value } = e.target;
     setUserDataInput((prevUserDataInput) => ({
@@ -71,22 +56,18 @@ export const FunctionalForm = ({ setUserData }) => {
   const handleOnSubmit = (e) => {
     e.preventDefault();
     setIsSubmitted(true);
-    if (isAllValid(isValid)) {
-      setUserData(userDataInput);
-      clearInputs();
-      setIsSubmitted(false);
-    } else {
+
+    if (!isAllValid(validityTracker)) {
       alert("bad data input");
+      return;
     }
+    setUserData(userDataInput);
+    clearInputs();
+    setIsSubmitted(false);
   };
 
-  function isAllValid(validationObject) {
-    // Extract all the values from the validationObject
-    const values = Object.values(validationObject);
-
-    // Check if all values are true
-    return values.every((value) => value === true);
-  }
+  const isAllValid = (validationObject) =>
+    Object.values(validationObject).every(Boolean);
 
   return (
     <form onSubmit={handleOnSubmit}>
@@ -106,7 +87,7 @@ export const FunctionalForm = ({ setUserData }) => {
       />
       <ErrorMessage
         message={invalidMessages.firstName}
-        show={!isValid.firstName && isSubmitted}
+        show={!validityTracker.firstName && isSubmitted}
       />
 
       {/* last name input */}
@@ -121,7 +102,7 @@ export const FunctionalForm = ({ setUserData }) => {
       />
       <ErrorMessage
         message={invalidMessages.lastName}
-        show={!isValid.lastName && isSubmitted}
+        show={!validityTracker.lastName && isSubmitted}
       />
 
       {/* Email Input */}
@@ -136,7 +117,7 @@ export const FunctionalForm = ({ setUserData }) => {
       />
       <ErrorMessage
         message={invalidMessages.email}
-        show={!isValid.email && isSubmitted}
+        show={!validityTracker.email && isSubmitted}
       />
 
       {/* City Input */}
@@ -144,25 +125,28 @@ export const FunctionalForm = ({ setUserData }) => {
         labelText={"City"}
         inputProps={{
           id: "city",
-          list: "suggestions",
+          list: "cities",
           placeholder: "Hobbiton",
           value: userDataInput.city,
           onChange: handleOnChange,
         }}
-        datalistOptions={allCities}
       />
       <ErrorMessage
         message={invalidMessages.city}
-        show={!isValid.city && isSubmitted}
+        show={!validityTracker.city && isSubmitted}
       />
       {/* Phone Input */}
       <FunctionalPhoneInput
-        value={userDataInput.phone}
-        onChange={handleOnChangePhone}
+        onChange={(newPhoneInput) =>
+          setUserDataInput({
+            ...userDataInput,
+            phone: newPhoneInput,
+          })
+        }
       />
       <ErrorMessage
         message={invalidMessages.phone}
-        show={!isValid.phone && isSubmitted}
+        show={!validityTracker.phone && isSubmitted}
       />
 
       <input type="submit" value="Submit" />
