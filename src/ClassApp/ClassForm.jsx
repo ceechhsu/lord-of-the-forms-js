@@ -53,22 +53,6 @@ export class ClassForm extends Component {
     });
   };
 
-  handleOnChangePhone = (e) => {
-    const { id, value } = e.target;
-    let newValue = value.replace(/[^0-9]/g, "");
-    const phoneIndex = parseInt(id[id.length - 1]) - 1;
-    const maxLength = phoneIndex === 3 ? 1 : 2;
-    let truncatedValue = newValue.slice(0, maxLength);
-    this.setState((prevState) => ({
-      userDataInput: {
-        ...prevState.userDataInput,
-        phone: prevState.userDataInput.phone.map((phoneValue, index) =>
-          index === phoneIndex ? truncatedValue : phoneValue
-        ),
-      },
-    }));
-  };
-
   handleOnChange = (e) => {
     const { id, value } = e.target;
     this.setState((prevState) => ({
@@ -82,8 +66,7 @@ export class ClassForm extends Component {
   handleOnSubmit = (e) => {
     e.preventDefault();
     this.setState({ isSubmitted: true });
-    const AllValid = this.isAllValid();
-    if (AllValid) {
+    if (this.isAllValid()) {
       this.props.setUserData(this.state.userDataInput);
       this.clearInputs();
       this.setState({ isSubmitted: false });
@@ -93,14 +76,6 @@ export class ClassForm extends Component {
   };
 
   render() {
-    const isValid = {
-      firstName: isNameValid(this.state.userDataInput.firstName),
-      lastName: isNameValid(this.state.userDataInput.lastName),
-      email: isEmailValid(this.state.userDataInput.email),
-      city: isCityValid(allCities, this.state.userDataInput.city),
-      phone: isPhoneValid(this.state.userDataInput.phone),
-    };
-
     return (
       <form onSubmit={this.handleOnSubmit}>
         <u>
@@ -119,7 +94,10 @@ export class ClassForm extends Component {
         />
         <ErrorMessage
           message={invalidMessages.firstName}
-          show={!isValid.firstName && this.state.isSubmitted}
+          show={
+            !isNameValid(this.state.userDataInput.firstName) &&
+            this.state.isSubmitted
+          }
         />
 
         {/* last name input */}
@@ -134,7 +112,10 @@ export class ClassForm extends Component {
         />
         <ErrorMessage
           message={invalidMessages.lastName}
-          show={!isValid.lastName && this.state.isSubmitted}
+          show={
+            !isNameValid(this.state.userDataInput.lastName) &&
+            this.state.isSubmitted
+          }
         />
 
         {/* Email Input */}
@@ -149,7 +130,10 @@ export class ClassForm extends Component {
         />
         <ErrorMessage
           message={invalidMessages.email}
-          show={!isValid.email && this.state.isSubmitted}
+          show={
+            !isEmailValid(this.state.userDataInput.email) &&
+            this.state.isSubmitted
+          }
         />
 
         {/* City Input */}
@@ -157,26 +141,37 @@ export class ClassForm extends Component {
           labelText={"City"}
           inputProps={{
             id: "city",
-            list: "suggestions",
+            list: "cities",
             placeholder: "Hobbiton",
             value: this.state.userDataInput.city,
             onChange: this.handleOnChange,
           }}
-          datalistOptions={allCities}
         />
         <ErrorMessage
           message={invalidMessages.city}
-          show={!isValid.city && this.state.isSubmitted}
+          show={
+            !isCityValid(allCities, this.state.userDataInput.city) &&
+            this.state.isSubmitted
+          }
         />
 
         {/* Phone Input */}
         <ClassPhoneInput
-          value={this.state.userDataInput.phone}
-          onChange={this.handleOnChangePhone}
+          onChange={(newPhoneInput) =>
+            this.setState((prevState) => ({
+              userDataInput: {
+                ...prevState.userDataInput,
+                phone: newPhoneInput,
+              },
+            }))
+          }
         />
         <ErrorMessage
           message={invalidMessages.phone}
-          show={!isValid.phone && this.state.isSubmitted}
+          show={
+            !isPhoneValid(this.state.userDataInput.phone) &&
+            this.state.isSubmitted
+          }
         />
 
         <input type="submit" value="Submit" />

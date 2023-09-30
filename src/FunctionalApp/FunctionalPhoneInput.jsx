@@ -1,6 +1,6 @@
 import React, { useRef, useState } from "react";
 
-export function FunctionalPhoneInput({ value, onChange }) {
+export function FunctionalPhoneInput({ onChange }) {
   const phoneInputRefs = [useRef(), useRef(), useRef(), useRef()];
   const [phoneNumber, setPhoneNumber] = useState(["", "", "", ""]);
 
@@ -13,7 +13,6 @@ export function FunctionalPhoneInput({ value, onChange }) {
     setPhoneNumber((prevPhoneNumber) => {
       const updatedPhoneNumber = [...prevPhoneNumber]; // Create a copy of the current state
       updatedPhoneNumber[index] = truncatedValue; // Set the new value at the specified index
-      console.log(updatedPhoneNumber);
       onChange(updatedPhoneNumber);
       return updatedPhoneNumber; // Return the updated state
     });
